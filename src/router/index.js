@@ -5,13 +5,17 @@ import VueRouter from 'vue-router'
 import Login from '@/components/login/Login'
 // 导入Home组件
 import Home from '@/components/home/Home.vue'
+// 引入User组件
+import User from '@/components/User/user.vue'
 // 安装插件
 Vue.use(VueRouter)
 
 const router = new VueRouter({
   routes: [
     { path: '/login', component: Login },
-    { path: '/home', component: Home }
+    // 如果子路由中路径带有/，那么哈希值就是/user
+    // 如果子路由路径中不带有/，那么哈希值就是/home/user
+    { path: '/home', component: Home, children: [ { path: '/user', component: User } ] }
   ]
 })
 router.beforeEach((to, from, next) => {

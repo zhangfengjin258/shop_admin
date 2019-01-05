@@ -89,7 +89,7 @@
           
           // this.loginForm = {username:this.loginForm.username;password:this.loginForm.password}
           axios.post(('http://localhost:8888/api/private/v1/login'),this.loginForm).then(res=> {
-            // console.log(res);
+            console.log(res);
             if(res.data.meta.status === 200){
               // 将token存储到localStorage中【注意：先存储token再跳转路由】
                localStorage.setItem('token',res.data.data.token)
