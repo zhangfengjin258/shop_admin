@@ -36,7 +36,7 @@
 <script>
 // 导入axios发送请求
  import axios from 'axios'
- export default {
+ export default { 
     data() {
       return {
         loginForm: {
@@ -71,44 +71,74 @@
     // $refs:是vue提供的一个对象。作用：用来获取页面中所有带有ref属性元素（DOM或者组件）。
     // 当前案例中就是通过$refs 获取表单组件，调用组件中的validate方法来进行表单验证
     methods: {
-      submitForm(formName) {
-        // 通过$refs获取具有ref属性的组件对象，并且调用组件validate方法进行表单校验
-        this.$refs[formName].validate((valid) => {
-          // valid参数：表示表单校验是否成功
-          // console.log(valid);结果为布尔值
-          if (!valid) {
-            // 验证失败代码不需要任何处理
-            return false;
-          }
-          // 1-获取用户名密码
-          // console.log(this.loginForm);
-          // 2-调用登录接口，完成登录
-          // 接口地址：http://localhost:8888/api/private/v1/login
-          // 发送请求使用axios，需要先下载安装，再导入
-          // axios.post('接口地址',表单对象).then((res)=>{})
-          
-          // this.loginForm = {username:this.loginForm.username;password:this.loginForm.password}
-          axios.post(('http://localhost:8888/api/private/v1/login'),this.loginForm).then(res=> {
-            console.log(res);
-            if(res.data.meta.status === 200){
-              // 将token存储到localStorage中【注意：先存储token再跳转路由】
-               localStorage.setItem('token',res.data.data.token)
-              // 登录成功
-              // 3-登陆成功后，跳转页面   
-              // $router访问路由实例
-              // router.push方法会向 history 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，则回到之前的 URL。
+       // 代码优化
+      async submitForm(formName) {
+        /*validate()如果不传递回调函数，返回值依旧是一个promise对象
+        如果表单验证成功，valid值为true
+        如果表单验证失败，则会执行catch中代码，并且错误对象e返回false
+        try{
+          const valid = await this.$refs[formName].validate()
+        如果表单验证失败，后面代码不会执行
+          console.log('成功',valid);
+        }catch(e){
+          console.log('表单验证失败了',e);
+        }*/
+        try{
+          await this.$refs[formName].validate()
+          // 表单验证成功后发送请求，完成登录功能即可
+          const url = 'http://localhost:8888/api/private/v1/login'
+          const res = await axios.post(url,this.loginForm)
+              if(res.data.meta.status === 200){
+                localStorage.setItem('token',res.data.data.token)
                 this.$router.push('/home')
-            }else{
-              // 登录失败，给用户提示错误信息
-              this.$message({
-                message: res.data.meta.msg,
-                type: 'error',
-                duriation:1000
-               });
-            }
-          })
-        });
+              }else{
+                this.$message({
+                  message: res.data.meta.msg,
+                  type: 'error',
+                  duriation:1000
+                });
+              }
+        }catch(e){}
       },
+      // submitForm(formName) {
+      //   // 通过$refs获取具有ref属性的组件对象，并且调用组件validate方法进行表单校验
+      //   this.$refs[formName].validate(valid => {
+      //     // valid参数：表示表单校验是否成功
+      //     // console.log(valid);结果为布尔值
+      //     if (!valid) {
+      //       // 验证失败代码不需要任何处理
+      //       return false;
+      //     }
+      //     // 1-获取用户名密码
+      //     // console.log(this.loginForm);
+      //     // 2-调用登录接口，完成登录
+      //     // 接口地址：http://localhost:8888/api/private/v1/login
+      //     // 发送请求使用axios，需要先下载安装，再导入
+      //     // axios.post('接口地址',表单对象).then((res)=>{})
+          
+      //     // this.loginForm = {username:this.loginForm.username;password:this.loginForm.password}
+      //    axios.post('http://localhost:8888/api/private/v1/login',this.loginForm)
+      //       .then(res=>{
+      //           // console.log(res);
+      //         if(res.data.meta.status === 200){
+      //           // 将token存储到localStorage中【注意：先存储token再跳转路由】
+      //           localStorage.setItem('token',res.data.data.token)
+      //           // 登录成功
+      //           // 3-登陆成功后，跳转页面   
+      //           // $router访问路由实例
+      //           // router.push方法会向 history 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，则回到之前的 URL。
+      //             this.$router.push('/home')
+      //         }else{
+      //           // 登录失败，给用户提示错误信息
+      //           this.$message({
+      //             message: res.data.meta.msg,
+      //             type: 'error',
+      //             duriation:1000
+      //           })
+      //         }
+      //       })
+      //   })
+      // },
       resetForm(formName) {
         this.$refs[formName].resetFields();
       }

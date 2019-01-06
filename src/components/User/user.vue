@@ -64,8 +64,9 @@ export default {
     },
     methods:{
         // 分页获取数据，获取当前页数据
-        getUserList(pagenum=1){
-            axios.get('http://localhost:8888/api/private/v1/users',{
+       async getUserList(pagenum=1){
+           const url = 'http://localhost:8888/api/private/v1/users'
+           const options = {
                 params:{
                     // 查询条件
                     query:'',
@@ -78,26 +79,26 @@ export default {
                     // 通过请求头，传递token值，判断登录状态
                     Authorization:localStorage.getItem('token')
                 }
-            })
-            .then(res=>{
-                // console.log('用户列表条数:', res);
-                if(res.data.meta.status === 200){
-                    // 获取数据成功
-                    // 将数据传递给userList渲染到页面中
-                    this.userList = res.data.data.users
-                    // 设置总条数
-                    this.total = res.data.data.total
-                    // 设置当前页
-                    this.pagenum = res.data.data.pagenum
-                }else{
-                    // 获取数据失败
-                    // token失效
-                    // 1、此时跳转到登录页面重新登录
-                    this.$router.push('/login')
-                    // 2、移除localStorage中的token值
-                    localStorage.removeItem('token')
-                }
-            })
+            }
+            // 使用await等待peomise结果
+          const res = await axios.get(url,options)
+            // console.log('用户列表条数:', res);
+            if(res.data.meta.status === 200){
+                // 获取数据成功
+                // 将数据传递给userList渲染到页面中
+                this.userList = res.data.data.users
+                // 设置总条数
+                this.total = res.data.data.total
+                // 设置当前页
+                this.pagenum = res.data.data.pagenum
+            }else{
+                // 获取数据失败
+                // token失效
+                // 1、此时跳转到登录页面重新登录
+                this.$router.push('/login')
+                // 2、移除localStorage中的token值
+                localStorage.removeItem('token')
+            }
         },
         // 切换分页,获取当前页数据
         changePage(currentPage){
